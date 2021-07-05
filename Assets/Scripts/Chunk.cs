@@ -8,16 +8,18 @@ public class Chunk : MonoBehaviour
 {
     private int _chunkSize;
     private float _threshold;
+    private IChunkGenerator _chunkGenerator;
 
     private Transform _transform;
     private MeshFilter _meshFilter;
     private MeshCollider _meshCollider;
     private Vector4[,,] _cubes;
 
-    private void Init(int chunkSize, float threshold)
+    private void Init(int chunkSize, float threshold, IChunkGenerator chunkGenerator)
     {
         _chunkSize = chunkSize;
         _threshold = threshold;
+        _chunkGenerator = chunkGenerator;
         
         _cubes = new Vector4[_chunkSize, _chunkSize, _chunkSize];
         _transform = transform;
@@ -39,12 +41,12 @@ public class Chunk : MonoBehaviour
 
     public void GenerateCubes(int chunkSize, float threshold, IChunkGenerator chunkGenerator)
     {
-        Init(chunkSize, threshold);
+        Init(chunkSize, threshold, chunkGenerator);
         
         EnumerateAllCubes((x, y, z) =>
         {
             _cubes[x, y, z] = new Vector3(x, y, z);
-            _cubes[x, y, z].w = chunkGenerator.GetValue(_transform.position + (Vector3)_cubes[x, y, z]);
+            _cubes[x, y, z].w = _chunkGenerator.GetVoxelValue(_transform.position + (Vector3)_cubes[x, y, z]);
         });
         
         UpdateMesh();
@@ -127,9 +129,7 @@ public class Chunk : MonoBehaviour
             {
                 meshVerts.Add(verts[vertIndex]); 
                 meshTris.Add(triIndex * verts.Length + vertIndex);
-
-                var factor = verts[vertIndex].y % _chunkSize / _chunkSize;
-                meshColors.Add(Color.Lerp(Color.yellow, Color.red, factor));
+                meshColors.Add(_chunkGenerator.GetColor(verts[vertIndex] + _transform.position));
             }
         }
 
@@ -145,22 +145,5 @@ public class Chunk : MonoBehaviour
         mesh.RecalculateTangents();
 
         return mesh;
-    }
-
-    public void AddValue(Vector3 point, float radius, float value)
-    {
-        var needsUpdate = false;
-        
-        EnumerateAllCubes((x, y, z) =>
-        {
-            if (Vector3.Distance((Vector3)_cubes[x, y, z] + _transform.position, point) <= radius)
-            {
-                _cubes[x, y, z].w -= value;
-                needsUpdate = true;
-            }
-        });
-        
-        if (needsUpdate)
-            UpdateMesh();
     }
 }

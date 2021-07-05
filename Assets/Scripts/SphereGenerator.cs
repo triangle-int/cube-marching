@@ -2,17 +2,27 @@
 
 public class SphereGenerator : IChunkGenerator
 {
-    private readonly int _chunkSize, _chunksNumber;
+    private readonly float _sphereRadius;
+    private readonly Vector3 _sphereCenter;
+    private readonly Color _topColor, _bottomColor;
     
-    public SphereGenerator(int chunkSize, int chunksNumber)
+    public SphereGenerator(Vector3 sphereCenter, float radius, Color topColor, Color bottomColor)
     {
-        _chunkSize = chunkSize;
-        _chunksNumber = chunksNumber;
+        _sphereRadius = radius;
+        _sphereCenter = sphereCenter;
+        _topColor = topColor;
+        _bottomColor = bottomColor;
+    }
+
+    public float GetVoxelValue(Vector3 position)
+    {
+        return -(Vector3.Distance(position, _sphereCenter) - _sphereRadius);
     }
     
-    public float GetValue(Vector3 position)
+    public Color GetColor(Vector3 position)
     {
-        var center = new Vector3(1, 1, 1) * ((_chunkSize - 1) * _chunksNumber / 2f);
-        return -(Vector3.Distance(position, center) - _chunkSize);
+        var spherePoint = position - _sphereCenter;
+        var factor = Vector3.Dot(Vector3.up, spherePoint.normalized) * 0.5f + 0.5f;
+        return Color.Lerp(_bottomColor, _topColor, factor);
     }
 }
