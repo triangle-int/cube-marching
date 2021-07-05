@@ -387,7 +387,7 @@ MonoBehaviour:
   chunkSize: 16
   threshold: 0
   chunkPrefab: {fileID: 637527716325678138, guid: 4904f238c53dc3542ba10fb1642517fb, type: 3}
-  radius: 64
+  radius: 120
   topColor: {r: 1, g: 1, b: 0, a: 0}
   bottomColor: {r: 1, g: 0, b: 0, a: 0}
 --- !u!1 &1991923482
