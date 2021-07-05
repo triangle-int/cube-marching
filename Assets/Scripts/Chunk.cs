@@ -44,7 +44,7 @@ public class Chunk : MonoBehaviour
         EnumerateAllCubes((x, y, z) =>
         {
             _cubes[x, y, z] = new Vector3(x, y, z);
-            _cubes[x, y, z].w = chunkGenerator.GetValue(_transform.position + (Vector3)_cubes[x, y, z]);;
+            _cubes[x, y, z].w = chunkGenerator.GetValue(_transform.position + (Vector3)_cubes[x, y, z]);
         });
         
         UpdateMesh();
@@ -60,7 +60,7 @@ public class Chunk : MonoBehaviour
                 triangles.AddRange(ProcessCube(x, y, z));
         });
 
-        var mesh = Triangle.GenerateMesh(triangles);
+        var mesh = GenerateMesh(triangles);
         _meshFilter.mesh = mesh;
         _meshCollider.sharedMesh = mesh;
     }
@@ -80,43 +80,73 @@ public class Chunk : MonoBehaviour
         };
 
         var triangles = new List<Triangle>();
-        var index = 0;
+        var cubeIndex = 0;
 
         for (var i = 0; i < corners.Length; i++)
         {
             if (corners[i].w >= _threshold)
-                index |= 1 << i;
+                cubeIndex |= 1 << i;
         }
 
-        for (var i = 0; i < MarchingCubesTables.TriangulationTable.GetLength(1); i += 3)
+        for (var triIndex = 0; triIndex < MarchingCubesTables.TriangulationTable.GetLength(1); triIndex += 3)
         {
-            if (MarchingCubesTables.TriangulationTable[index, i] == -1)
+            if (MarchingCubesTables.TriangulationTable[cubeIndex, triIndex] == -1)
                 break;
 
-            var vert00 = corners[MarchingCubesTables.Corner1Index[MarchingCubesTables.TriangulationTable[index, i]]];
-            var vert01 = corners[MarchingCubesTables.Corner2Index[MarchingCubesTables.TriangulationTable[index, i]]];
+            var verts = new List<Vector3>();
 
-            var vert10 = corners[MarchingCubesTables.Corner1Index[MarchingCubesTables.TriangulationTable[index, i + 1]]];
-            var vert11 = corners[MarchingCubesTables.Corner2Index[MarchingCubesTables.TriangulationTable[index, i + 1]]];
+            for (var vertIndex = 0; vertIndex < 3; vertIndex++)
+            {
+                var vert1 = corners[MarchingCubesTables.Corner1Index[MarchingCubesTables.TriangulationTable[cubeIndex, triIndex + vertIndex]]];
+                var vert2 = corners[MarchingCubesTables.Corner2Index[MarchingCubesTables.TriangulationTable[cubeIndex, triIndex + vertIndex]]];
+                verts.Add(GetMiddlePoint(vert1, vert2));
+            }
 
-            var vert20 = corners[MarchingCubesTables.Corner1Index[MarchingCubesTables.TriangulationTable[index, i + 2]]];
-            var vert21 = corners[MarchingCubesTables.Corner2Index[MarchingCubesTables.TriangulationTable[index, i + 2]]];
-
-            triangles.Add(new Triangle(
-                GetMiddlePoint(vert00, vert01),
-                GetMiddlePoint(vert10, vert11),
-                GetMiddlePoint(vert20, vert21)
-            ));
+            triangles.Add(new Triangle(verts.ToArray()));
         }
 
         return triangles;
     }
-
+    
     private Vector3 GetMiddlePoint(Vector4 v1, Vector4 v2)
     {
         return Vector3.Lerp(v1, v2, (_threshold - v1.w) / (v2.w - v1.w));
     }
-    
+
+    private Mesh GenerateMesh(List<Triangle> triangles)
+    {
+        var meshVerts = new List<Vector3>();
+        var meshTris = new List<int>();
+        var meshColors = new List<Color>();
+
+        for (var triIndex = 0; triIndex < triangles.Count; triIndex++)
+        {
+            var verts = triangles[triIndex].Verts;
+            
+            for (var vertIndex = 0; vertIndex < verts.Length; vertIndex++)
+            {
+                meshVerts.Add(verts[vertIndex]); 
+                meshTris.Add(triIndex * verts.Length + vertIndex);
+
+                var factor = verts[vertIndex].y % _chunkSize / _chunkSize;
+                meshColors.Add(Color.Lerp(Color.yellow, Color.red, factor));
+            }
+        }
+
+        var mesh = new Mesh
+        {
+            vertices = meshVerts.ToArray(),
+            triangles = meshTris.ToArray(),
+            colors = meshColors.ToArray(),
+        };
+
+        mesh.RecalculateBounds();
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+
+        return mesh;
+    }
+
     public void AddValue(Vector3 point, float radius, float value)
     {
         var needsUpdate = false;
