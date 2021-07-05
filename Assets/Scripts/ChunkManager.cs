@@ -4,7 +4,7 @@ public class ChunkManager : MonoBehaviour
 {
     [SerializeField] private int chunksNumber;
     [SerializeField] private int chunkSize;
-    [Range(0, 1)] [SerializeField] private float threshold;
+    [SerializeField] private float threshold;
     [SerializeField] private GameObject chunkPrefab;
 
     private static Chunk[,,] _chunks;

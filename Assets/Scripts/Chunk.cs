@@ -44,8 +44,7 @@ public class Chunk : MonoBehaviour
         EnumerateAllCubes((x, y, z) =>
         {
             _cubes[x, y, z] = new Vector3(x, y, z);
-            var value = chunkGenerator.GetValue(_transform.position + (Vector3)_cubes[x, y, z]);
-            _cubes[x, y, z].w = Mathf.Clamp(value, 0, 1);
+            _cubes[x, y, z].w = chunkGenerator.GetValue(_transform.position + (Vector3)_cubes[x, y, z]);;
         });
         
         UpdateMesh();
