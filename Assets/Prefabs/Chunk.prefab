@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 637527716325678142}
   - component: {fileID: 637527716325678143}
   - component: {fileID: 637527716325678140}
+  - component: {fileID: 5108814675394722929}
   - component: {fileID: 637527716325678129}
   - component: {fileID: 637527716325678141}
   m_Layer: 0
@@ -84,6 +85,30 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!205 &5108814675394722929
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 637527716325678138}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: 0, y: 0, z: 0}
+  m_Size: 1
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.6
+    fadeTransitionWidth: 0
+    renderers: []
+  - screenRelativeHeight: 0.3
+    fadeTransitionWidth: 0
+    renderers: []
+  - screenRelativeHeight: 0.1
+    fadeTransitionWidth: 0
+    renderers: []
+  m_Enabled: 0
 --- !u!64 &637527716325678129
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -110,5 +135,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dcc6a5d198686c4a8e845b35a67fb09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkSize: 16
-  threshold: 0.5
