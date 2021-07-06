@@ -64,8 +64,9 @@ namespace PlanetGeneration
             var totalCount = _cubesNumber * _cubesNumber * _cubesNumber;
             var groupsCount = new Vector3Int(_cubesNumber /  (int)x, _cubesNumber / (int)y, _cubesNumber / (int)z) / _lodDownscale;
 
-            var cubesBuffer = CreateCubesBuffer(cubes, _cubesNumber);
+            var cubesBuffer = CreateCubesBuffer(cubes);
             var trianglesBuffer = new ComputeBuffer(totalCount * 5, sizeof(float) * 3 * 3, ComputeBufferType.Append);
+            trianglesBuffer.SetCounterValue(0);
             
             _shader.SetInt("lod_downscale", _lodDownscale);
             _shader.SetInt("cubes_number", _cubesNumber);
@@ -75,28 +76,34 @@ namespace PlanetGeneration
             _shader.SetBuffer(kernelIndex, "triangles", trianglesBuffer);
             
             _shader.Dispatch(kernelIndex, groupsCount.x, groupsCount.y, groupsCount.z);
-
-            // TODO : GET BUFFER TRIANGLES COUNT
-            var triangles = new Triangle[totalCount * 5];
-            trianglesBuffer.GetData(triangles, 0, 0, triangles.Length);
             
+            var trianglesCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.IndirectArguments);
+            ComputeBuffer.CopyCount(trianglesBuffer, trianglesCountBuffer, 0);
+            
+            var trianglesCount = new [] { 0 };
+            trianglesCountBuffer.GetData(trianglesCount);
+
+            var triangles = new Triangle[trianglesCount[0]];
+            trianglesBuffer.GetData(triangles);
+            
+            trianglesCountBuffer.Release();
             cubesBuffer.Release();
             trianglesBuffer.Release();
             
             _meshFilter.mesh = TrianglesToMesh(triangles);
         }
 
-        private static ComputeBuffer CreateCubesBuffer(Vector4[,,] cubes, int cubesNumber)
+        private ComputeBuffer CreateCubesBuffer(Vector4[,,] cubes)
         {
-            var totalCount = cubesNumber * cubesNumber * cubesNumber;
+            var totalCount = _cubesNumber * _cubesNumber * _cubesNumber;
             var data = new Vector4[totalCount];
 
-            for (var x = 0; x < cubesNumber; x++)
+            for (var x = 0; x < _cubesNumber; x++)
             {
-                for (var y = 0; y < cubesNumber; y++)
+                for (var y = 0; y < _cubesNumber; y++)
                 {
-                    for (var z = 0; z < cubesNumber; z++)
-                        data[x * cubesNumber * cubesNumber + y * cubesNumber + z] = cubes[x, y, z];
+                    for (var z = 0; z < _cubesNumber; z++)
+                        data[x * _cubesNumber * _cubesNumber + y * _cubesNumber + z] = cubes[x, y, z];
                 }
             }
 
