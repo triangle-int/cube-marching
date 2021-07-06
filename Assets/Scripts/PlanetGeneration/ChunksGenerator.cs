@@ -9,10 +9,7 @@ namespace PlanetGeneration
         [SerializeField] private int chunkSize;
         [SerializeField] private float threshold;
         [SerializeField] private GameObject chunkPrefab;
-    
         [SerializeField] private float radius;
-        [SerializeField] private Color topColor;
-        [SerializeField] private Color bottomColor;
     
         private IChunkGenerator _chunkGenerator;
         private Chunk[,,] _chunks;
@@ -20,7 +17,7 @@ namespace PlanetGeneration
         private void Start()
         {
             var sphereCenter = new Vector3(1, 1, 1) * (chunkSize * chunksNumber / 2f);
-            _chunkGenerator = new SphereGenerator(sphereCenter, radius, topColor, bottomColor);
+            _chunkGenerator = new SphereGenerator(sphereCenter, radius);
         
             _chunks = new Chunk[chunksNumber, chunksNumber, chunksNumber];
             StartCoroutine(GenerateChunks());
