@@ -2,29 +2,30 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(LODGroup))]
 [RequireComponent(typeof(MeshCollider))]
 public class Chunk : MonoBehaviour
 {
     [SerializeField] private List<MeshFilter> lods;
     
-    private int _chunkSize;
     private int _cubesNumber;
     private float _threshold;
     private IChunkGenerator _chunkGenerator;
 
     private Transform _transform;
+    private LODGroup _lodGroup;
     private MeshCollider _meshCollider;
     private Vector4[,,] _cubes;
 
     private void Init(int chunkSize, float threshold, IChunkGenerator chunkGenerator)
     {
-        _chunkSize = chunkSize;
-        _cubesNumber = _chunkSize + 1;
+        _cubesNumber = chunkSize + 1;
         _threshold = threshold;
         _chunkGenerator = chunkGenerator;
         
         _cubes = new Vector4[_cubesNumber, _cubesNumber, _cubesNumber];
         _transform = transform;
+        _lodGroup = GetComponent<LODGroup>();
         _meshCollider = GetComponent<MeshCollider>();
     }
 
@@ -73,6 +74,8 @@ public class Chunk : MonoBehaviour
             if (lod == 0 && triangles.Count > 0)
                 _meshCollider.sharedMesh = mesh;
         }
+        
+        _lodGroup.RecalculateBounds();
     }
 
     private List<Triangle> ProcessCube(int x, int y, int z, int skip)
