@@ -9,7 +9,7 @@ namespace PlanetGeneration
     public class Chunk : MonoBehaviour
     {
         [SerializeField] private List<MeshFilter> lods;
-    
+
         private int _cubesNumber;
         private float _threshold;
         private IChunkGenerator _chunkGenerator;
@@ -24,20 +24,23 @@ namespace PlanetGeneration
             _cubesNumber = chunkSize + 1;
             _threshold = threshold;
             _chunkGenerator = chunkGenerator;
-        
+
             _cubes = new Vector4[_cubesNumber, _cubesNumber, _cubesNumber];
             _transform = transform;
             _lodGroup = GetComponent<LODGroup>();
             _meshCollider = GetComponent<MeshCollider>();
         }
 
-        private void EnumerateAllCubes(Action<int, int, int> action, int step = 1)
+        private void EnumerateAllCubes(Action<int, int, int> action, int step = 1, int size = -1)
         {
-            for (var x = 0; x < _cubesNumber; x += step)
+            if (size <= -1)
+                size = _cubesNumber;
+
+            for (var x = 0; x < size; x += step)
             {
-                for (var y = 0; y < _cubesNumber; y += step)
+                for (var y = 0; y < size; y += step)
                 {
-                    for (var z = 0; z < _cubesNumber; z += step)
+                    for (var z = 0; z < size; z += step)
                         action(x, y, z);
                 }
             }
@@ -46,13 +49,13 @@ namespace PlanetGeneration
         public void GenerateCubes(int chunkSize, float threshold, IChunkGenerator chunkGenerator)
         {
             Init(chunkSize, threshold, chunkGenerator);
-        
+
             EnumerateAllCubes((x, y, z) =>
             {
                 _cubes[x, y, z] = new Vector3(x, y, z);
                 _cubes[x, y, z].w = _chunkGenerator.GetVoxelValue(_transform.position + (Vector3)_cubes[x, y, z]);
             });
-        
+
             UpdateMeshes();
         }
 
@@ -61,28 +64,31 @@ namespace PlanetGeneration
             for (var lod = 0; lod < lods.Count; lod++)
             {
                 var cubesSkip = 1 << lod;
-                var maxCubeIndex = _cubesNumber - cubesSkip;
                 var triangles = new List<Triangle>();
-            
+
                 EnumerateAllCubes((x, y, z) =>
                 {
-                    if (x < maxCubeIndex && y < maxCubeIndex && z < maxCubeIndex)
-                        triangles.AddRange(ProcessCube(x, y, z, cubesSkip));
-                }, cubesSkip);
-            
+                    triangles.AddRange(ProcessCube(x, y, z, cubesSkip));
+                }, cubesSkip, _cubesNumber - cubesSkip);
+
                 var mesh = GenerateMesh(triangles);
                 lods[lod].mesh = mesh;
-            
+
                 if (lod == 0 && triangles.Count > 0)
                     _meshCollider.sharedMesh = mesh;
             }
-        
+
             _lodGroup.RecalculateBounds();
+        }
+
+        private Vector3 GetMiddlePoint(Vector4 v1, Vector4 v2)
+        {
+            return Vector3.Lerp(v1, v2, (_threshold - v1.w) / (v2.w - v1.w));
         }
 
         private List<Triangle> ProcessCube(int x, int y, int z, int skip)
         {
-            var corners = new []
+            var corners = new[]
             {
                 _cubes[x, y, z],
                 _cubes[x + skip, y, z],
@@ -112,20 +118,15 @@ namespace PlanetGeneration
 
                 for (var vertIndex = 0; vertIndex < 3; vertIndex++)
                 {
-                    var vert1 = corners[MarchingCubesTables.Corner1Index[MarchingCubesTables.TriangulationTable[cubeIndex, triIndex + vertIndex]]];
-                    var vert2 = corners[MarchingCubesTables.Corner2Index[MarchingCubesTables.TriangulationTable[cubeIndex, triIndex + vertIndex]]];
-                    verts.Add(GetMiddlePoint(vert1, vert2));
+                    var v1 = corners[MarchingCubesTables.Corner1Index[MarchingCubesTables.TriangulationTable[cubeIndex, triIndex + vertIndex]]];
+                    var v2 = corners[MarchingCubesTables.Corner2Index[MarchingCubesTables.TriangulationTable[cubeIndex, triIndex + vertIndex]]];
+                    verts.Add(GetMiddlePoint(v1, v2));
                 }
 
-                triangles.Add(new Triangle(verts.ToArray()));
+                triangles.Add(new Triangle(verts[0], verts[1], verts[2]));
             }
 
             return triangles;
-        }
-    
-        private Vector3 GetMiddlePoint(Vector4 v1, Vector4 v2)
-        {
-            return Vector3.Lerp(v1, v2, (_threshold - v1.w) / (v2.w - v1.w));
         }
 
         private Mesh GenerateMesh(List<Triangle> triangles)
@@ -136,13 +137,13 @@ namespace PlanetGeneration
 
             for (var triIndex = 0; triIndex < triangles.Count; triIndex++)
             {
-                var verts = triangles[triIndex].Verts;
-            
-                for (var vertIndex = 0; vertIndex < verts.Length; vertIndex++)
+                var triangle = triangles[triIndex];
+
+                for (var vertIndex = 0; vertIndex < 3; vertIndex++)
                 {
-                    meshVerts.Add(verts[vertIndex]); 
-                    meshTris.Add(triIndex * verts.Length + vertIndex);
-                    meshColors.Add(_chunkGenerator.GetColor(verts[vertIndex] + _transform.position));
+                    meshVerts.Add(triangle[vertIndex]);
+                    meshTris.Add(triIndex * 3 + vertIndex);
+                    meshColors.Add(_chunkGenerator.GetColor(triangle[vertIndex] + _transform.position));
                 }
             }
 
