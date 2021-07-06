@@ -2,38 +2,39 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshCollider))]
 public class Chunk : MonoBehaviour
 {
+    [SerializeField] private List<MeshFilter> lods;
+    
     private int _chunkSize;
+    private int _cubesNumber;
     private float _threshold;
     private IChunkGenerator _chunkGenerator;
 
     private Transform _transform;
-    private MeshFilter _meshFilter;
     private MeshCollider _meshCollider;
     private Vector4[,,] _cubes;
 
     private void Init(int chunkSize, float threshold, IChunkGenerator chunkGenerator)
     {
         _chunkSize = chunkSize;
+        _cubesNumber = _chunkSize + 1;
         _threshold = threshold;
         _chunkGenerator = chunkGenerator;
         
-        _cubes = new Vector4[_chunkSize, _chunkSize, _chunkSize];
+        _cubes = new Vector4[_cubesNumber, _cubesNumber, _cubesNumber];
         _transform = transform;
-        _meshFilter = GetComponent<MeshFilter>();
         _meshCollider = GetComponent<MeshCollider>();
     }
 
-    private void EnumerateAllCubes(Action<int, int, int> action)
+    private void EnumerateAllCubes(Action<int, int, int> action, int step = 1)
     {
-        for (var x = 0; x < _chunkSize; x++)
+        for (var x = 0; x < _cubesNumber; x += step)
         {
-            for (var y = 0; y < _chunkSize; y++)
+            for (var y = 0; y < _cubesNumber; y += step)
             {
-                for (var z = 0; z < _chunkSize; z++)
+                for (var z = 0; z < _cubesNumber; z += step)
                     action(x, y, z);
             }
         }
@@ -49,36 +50,43 @@ public class Chunk : MonoBehaviour
             _cubes[x, y, z].w = _chunkGenerator.GetVoxelValue(_transform.position + (Vector3)_cubes[x, y, z]);
         });
         
-        UpdateMesh();
+        UpdateMeshes();
     }
 
-    private void UpdateMesh()
+    private void UpdateMeshes()
     {
-        var triangles = new List<Triangle>();
-        
-        EnumerateAllCubes((x, y, z) =>
+        for (var lod = 0; lod < lods.Count; lod++)
         {
-            if (x < _chunkSize - 1 && y < _chunkSize - 1 && z < _chunkSize - 1)
-                triangles.AddRange(ProcessCube(x, y, z));
-        });
-
-        var mesh = GenerateMesh(triangles);
-        _meshFilter.mesh = mesh;
-        _meshCollider.sharedMesh = mesh;
+            var cubesSkip = 1 << lod;
+            var maxCubeIndex = _cubesNumber - cubesSkip;
+            var triangles = new List<Triangle>();
+            
+            EnumerateAllCubes((x, y, z) =>
+            {
+                if (x < maxCubeIndex && y < maxCubeIndex && z < maxCubeIndex)
+                    triangles.AddRange(ProcessCube(x, y, z, cubesSkip));
+            }, cubesSkip);
+            
+            var mesh = GenerateMesh(triangles);
+            lods[lod].mesh = mesh;
+            
+            if (lod == 0 && triangles.Count > 0)
+                _meshCollider.sharedMesh = mesh;
+        }
     }
 
-    private List<Triangle> ProcessCube(int x, int y, int z)
+    private List<Triangle> ProcessCube(int x, int y, int z, int skip)
     {
         var corners = new []
         {
             _cubes[x, y, z],
-            _cubes[x + 1, y, z],
-            _cubes[x + 1, y, z + 1],
-            _cubes[x, y, z + 1],
-            _cubes[x, y + 1, z],
-            _cubes[x + 1, y + 1, z],
-            _cubes[x + 1, y + 1, z + 1],
-            _cubes[x, y + 1, z + 1]
+            _cubes[x + skip, y, z],
+            _cubes[x + skip, y, z + skip],
+            _cubes[x, y, z + skip],
+            _cubes[x, y + skip, z],
+            _cubes[x + skip, y + skip, z],
+            _cubes[x + skip, y + skip, z + skip],
+            _cubes[x, y + skip, z + skip]
         };
 
         var triangles = new List<Triangle>();
@@ -143,7 +151,6 @@ public class Chunk : MonoBehaviour
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
-
         return mesh;
     }
 }

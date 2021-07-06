@@ -879,7 +879,7 @@ MonoBehaviour:
   chunkSize: 16
   threshold: 0
   chunkPrefab: {fileID: 637527716325678138, guid: 4904f238c53dc3542ba10fb1642517fb, type: 3}
-  radius: 120
+  radius: 128
   topColor: {r: 1, g: 1, b: 0, a: 0}
   bottomColor: {r: 1, g: 0, b: 0, a: 0}
 --- !u!1001 &2006263463
@@ -1734,7 +1734,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.9851351, y: 1}
+    m_SensorSize: {x: 2.0320945, y: 1}
     Iso: 200
     ShutterSpeed: 0.005
     Aperture: 16

@@ -17,7 +17,7 @@ public class ChunksGenerator : MonoBehaviour
 
     private void Start()
     {
-        var sphereCenter = new Vector3(1, 1, 1) * ((chunkSize - 1) * chunksNumber / 2f);
+        var sphereCenter = new Vector3(1, 1, 1) * (chunkSize * chunksNumber / 2f);
         _chunkGenerator = new SphereGenerator(sphereCenter, radius, topColor, bottomColor);
         
         _chunks = new Chunk[chunksNumber, chunksNumber, chunksNumber];
@@ -32,7 +32,7 @@ public class ChunksGenerator : MonoBehaviour
             {
                 for (var z = 0; z < chunksNumber; z++)
                 {
-                    var position = new Vector3(x, y, z) * (chunkSize - 1);
+                    var position = new Vector3(x, y, z) * chunkSize;
                     var chunk = Instantiate(chunkPrefab, position, Quaternion.identity).GetComponent<Chunk>();
                     chunk.GenerateCubes(chunkSize, threshold, _chunkGenerator);
                     _chunks[x, y, z] = chunk;
