@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 637527716325678142}
   - component: {fileID: 5108814675394722929}
+  - component: {fileID: 3872574784466329466}
   - component: {fileID: 637527716325678141}
   m_Layer: 0
   m_Name: Chunk
@@ -67,6 +68,20 @@ LODGroup:
     renderers:
     - renderer: {fileID: 5856944366771559845}
   m_Enabled: 1
+--- !u!64 &3872574784466329466
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 637527716325678138}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}
 --- !u!114 &637527716325678141
 MonoBehaviour:
   m_ObjectHideFlags: 0

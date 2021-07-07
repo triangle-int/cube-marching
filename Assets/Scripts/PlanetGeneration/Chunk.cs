@@ -4,6 +4,7 @@ using UnityEngine;
 namespace PlanetGeneration
 {
     [RequireComponent(typeof(LODGroup))]
+    [RequireComponent(typeof(MeshCollider))]
     public class Chunk : MonoBehaviour
     {
         [SerializeField] private List<MeshFilter> lodsMeshFilters;
@@ -15,6 +16,7 @@ namespace PlanetGeneration
 
         private Transform _transform;
         private LODGroup _lodGroup;
+        private MeshCollider _meshCollider;
 
         public Vector4[] Cubes { get; private set; }
         private List<MeshGenerator> _lodsMeshGenerators;
@@ -34,13 +36,14 @@ namespace PlanetGeneration
             
             _transform = transform;
             _lodGroup = GetComponent<LODGroup>();
+            _meshCollider = GetComponent<MeshCollider>();
             
             Cubes = new Vector4[_cubesNumber * _cubesNumber * _cubesNumber];
             _lodsMeshGenerators = new List<MeshGenerator>();
 
             for (var lod = 0; lod < lodsMeshFilters.Count; lod++)
             {
-                var meshGenerator = new MeshGenerator(this, _cubesNumber, _threshold, lod, shader, lodsMeshFilters[lod]);
+                var meshGenerator = new MeshGenerator(this, _cubesNumber, _threshold, lod, shader);
                 _lodsMeshGenerators.Add(meshGenerator);
             }
         }
@@ -52,8 +55,14 @@ namespace PlanetGeneration
 
         private void UpdateMeshes()
         {
-            foreach (var meshGenerator in _lodsMeshGenerators)
-                meshGenerator.UpdateMesh();
+            for (var lod = 0; lod < lodsMeshFilters.Count; lod++)
+            {
+                var mesh = _lodsMeshGenerators[lod].GenerateMesh();
+                lodsMeshFilters[lod].mesh = mesh;
+
+                if (lod == 0)
+                    _meshCollider.sharedMesh = mesh;
+            }
 
             _lodGroup.RecalculateBounds();
         }

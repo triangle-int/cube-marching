@@ -43,9 +43,8 @@ namespace PlanetGeneration
         private readonly int _lodDownscale;
         
         private readonly ComputeShader _shader;
-        private readonly MeshFilter _meshFilter;
 
-        public MeshGenerator(Chunk chunk, int cubesNumber, float threshold, int lod, ComputeShader shader, MeshFilter meshFilter)
+        public MeshGenerator(Chunk chunk, int cubesNumber, float threshold, int lod, ComputeShader shader)
         {
             _chunk = chunk;
             _cubesNumber = cubesNumber;
@@ -53,10 +52,9 @@ namespace PlanetGeneration
             _lodDownscale = 1 << lod;
             
             _shader = shader;
-            _meshFilter = meshFilter;
         }
 
-        public void UpdateMesh()
+        public Mesh GenerateMesh()
         {
             var kernelIndex = _shader.FindKernel("March");
             _shader.GetKernelThreadGroupSizes(kernelIndex, out var x, out var y, out var z);
@@ -92,7 +90,7 @@ namespace PlanetGeneration
             cubesBuffer.Release();
             trianglesBuffer.Release();
             
-            _meshFilter.mesh = TrianglesToMesh(triangles);
+            return TrianglesToMesh(triangles);
         }
         
         private Mesh TrianglesToMesh(Triangle[] triangles)
