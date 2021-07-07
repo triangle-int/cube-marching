@@ -84,8 +84,7 @@ MonoBehaviour:
   - {fileID: 1386860210892200608}
   - {fileID: 1715541961465559657}
   - {fileID: 1682936269570479597}
-  marchingCubesShader: {fileID: 7200000, guid: 2f2e21123623b8f48a3dbac9172c6db2, type: 3}
-  cubesGeneratorShader: {fileID: 7200000, guid: 265020792f2b1344b9d1d605f1b4e855, type: 3}
+  shader: {fileID: 7200000, guid: 2f2e21123623b8f48a3dbac9172c6db2, type: 3}
 --- !u!1 &2823879892503731458
 GameObject:
   m_ObjectHideFlags: 0

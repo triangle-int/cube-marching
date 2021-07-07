@@ -845,6 +845,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1959791736}
+  - component: {fileID: 1959791738}
   - component: {fileID: 1959791737}
   m_Layer: 0
   m_Name: Scripts
@@ -883,6 +884,19 @@ MonoBehaviour:
   chunkSize: 32
   threshold: 0
   chunkPrefab: {fileID: 637527716325678138, guid: 4904f238c53dc3542ba10fb1642517fb, type: 3}
+--- !u!114 &1959791738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1959791735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e0dcf1f9ff44a0aa11338904fadc205, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shader: {fileID: 7200000, guid: 265020792f2b1344b9d1d605f1b4e855, type: 3}
 --- !u!1001 &2006263463
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -8,9 +8,9 @@ namespace PlanetGeneration
     {
         private struct Triangle
         {
-            public Vector3 V1;
-            public Vector3 V2;
-            public Vector3 V3;
+            private Vector3 _v1;
+            private Vector3 _v2;
+            private Vector3 _v3;
 
             public Vector3 this[int i]
             {
@@ -18,9 +18,9 @@ namespace PlanetGeneration
                 {
                     switch (i)
                     {
-                        case 0: return V1;
-                        case 1: return V2;
-                        case 2: return V3;
+                        case 0: return _v1;
+                        case 1: return _v2;
+                        case 2: return _v3;
                         default: throw new IndexOutOfRangeException();
                     }
                 }
@@ -28,9 +28,9 @@ namespace PlanetGeneration
                 {
                     switch (i)
                     {
-                        case 0: V1 = value; break;
-                        case 1: V2 = value; break;
-                        case 2: V3 = value; break;
+                        case 0: _v1 = value; break;
+                        case 1: _v2 = value; break;
+                        case 2: _v3 = value; break;
                         default: throw new IndexOutOfRangeException();
                     }
                 }
@@ -40,7 +40,6 @@ namespace PlanetGeneration
         private readonly Chunk _chunk;
         private readonly int _cubesNumber;
         private readonly float _threshold;
-        private readonly int _lod;
         private readonly int _lodDownscale;
         
         private readonly ComputeShader _shader;
@@ -51,8 +50,7 @@ namespace PlanetGeneration
             _chunk = chunk;
             _cubesNumber = cubesNumber;
             _threshold = threshold;
-            _lod = lod;
-            _lodDownscale = 1 << _lod;
+            _lodDownscale = 1 << lod;
             
             _shader = shader;
             _meshFilter = meshFilter;
