@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 namespace PlanetGeneration
@@ -9,22 +8,19 @@ namespace PlanetGeneration
         [SerializeField] private int chunkSize;
         [SerializeField] private float threshold;
         [SerializeField] private GameObject chunkPrefab;
-        [SerializeField] private float radius;
     
-        private IChunkGenerator _chunkGenerator;
         private Chunk[,,] _chunks;
 
         private void Start()
         {
-            var sphereCenter = new Vector3(1, 1, 1) * (chunkSize * chunksNumber / 2f);
-            _chunkGenerator = new SphereGenerator(sphereCenter, radius);
-        
             _chunks = new Chunk[chunksNumber, chunksNumber, chunksNumber];
-            StartCoroutine(GenerateChunks());
+            GenerateChunks();
         }
 
-        private IEnumerator GenerateChunks()
+        private void GenerateChunks()
         {
+            var time = Time.realtimeSinceStartup;
+            
             for (var x = 0; x < chunksNumber; x++)
             {
                 for (var y = 0; y < chunksNumber; y++)
@@ -33,13 +29,13 @@ namespace PlanetGeneration
                     {
                         var position = new Vector3(x, y, z) * chunkSize;
                         var chunk = Instantiate(chunkPrefab, position, Quaternion.identity).GetComponent<Chunk>();
-                        chunk.GenerateCubes(chunkSize, threshold, _chunkGenerator);
+                        chunk.Generate(chunkSize, threshold);
                         _chunks[x, y, z] = chunk;
                     }
-                
-                    yield return null;
                 }
             }
+            
+            Debug.Log(Time.realtimeSinceStartup - time);
         }
     }
 }

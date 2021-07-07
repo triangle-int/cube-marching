@@ -96,7 +96,36 @@ namespace PlanetGeneration
             
             _meshFilter.mesh = TrianglesToMesh(triangles);
         }
+        
+        private Mesh TrianglesToMesh(Triangle[] triangles)
+        {
+            var meshVerts = new List<Vector3>();
+            var meshTris = new List<int>();
 
+            for (var triIndex = 0; triIndex < triangles.Length; triIndex++)
+            {
+                var triangle = triangles[triIndex];
+
+                for (var vertIndex = 0; vertIndex < 3; vertIndex++)
+                {
+                    meshVerts.Add(triangle[vertIndex]);
+                    meshTris.Add(triIndex * 3 + vertIndex);
+                }
+            }
+
+            var mesh = new Mesh
+            {
+                vertices = meshVerts.ToArray(),
+                triangles = meshTris.ToArray()
+            };
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+            mesh.RecalculateTangents();
+
+            return mesh;
+        }
+        
+        /*
         public void UpdateMeshCPU()
         {
             var skip = 1 << _lod;
@@ -161,33 +190,6 @@ namespace PlanetGeneration
         {
             return Vector3.Lerp(v1, v2, (_threshold - v1.w) / (v2.w - v1.w));
         }
-        
-        private Mesh TrianglesToMesh(Triangle[] triangles)
-        {
-            var meshVerts = new List<Vector3>();
-            var meshTris = new List<int>();
-
-            for (var triIndex = 0; triIndex < triangles.Length; triIndex++)
-            {
-                var triangle = triangles[triIndex];
-
-                for (var vertIndex = 0; vertIndex < 3; vertIndex++)
-                {
-                    meshVerts.Add(triangle[vertIndex]);
-                    meshTris.Add(triIndex * 3 + vertIndex);
-                }
-            }
-
-            var mesh = new Mesh
-            {
-                vertices = meshVerts.ToArray(),
-                triangles = meshTris.ToArray()
-            };
-            mesh.RecalculateNormals();
-            mesh.RecalculateBounds();
-            mesh.RecalculateTangents();
-
-            return mesh;
-        }
+        */
     }
 }

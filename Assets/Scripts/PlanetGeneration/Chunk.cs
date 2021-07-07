@@ -7,23 +7,29 @@ namespace PlanetGeneration
     public class Chunk : MonoBehaviour
     {
         [SerializeField] private List<MeshFilter> lodsMeshFilters;
-        [SerializeField] private ComputeShader shader;
+        [SerializeField] private ComputeShader marchingCubesShader;
+        [SerializeField] private ComputeShader cubesGeneratorShader;
         
         private int _cubesNumber;
         private float _threshold;
-        private IChunkGenerator _chunkGenerator;
 
         private Transform _transform;
         private LODGroup _lodGroup;
 
         public Vector4[] Cubes { get; private set; }
         private List<MeshGenerator> _lodsMeshGenerators;
+        
+        public void Generate(int chunkSize, float threshold)
+        {
+            Init(chunkSize, threshold);
+            GenerateCubes();
+            UpdateMeshes();
+        }
 
-        private void Init(int chunkSize, float threshold, IChunkGenerator chunkGenerator)
+        private void Init(int chunkSize, float threshold)
         {
             _cubesNumber = chunkSize + 1;
             _threshold = threshold;
-            _chunkGenerator = chunkGenerator;
             
             _transform = transform;
             _lodGroup = GetComponent<LODGroup>();
@@ -33,31 +39,27 @@ namespace PlanetGeneration
 
             for (var lod = 0; lod < lodsMeshFilters.Count; lod++)
             {
-                var meshGenerator = new MeshGenerator(this, _cubesNumber, _threshold, lod, shader, lodsMeshFilters[lod]);
+                var meshGenerator = new MeshGenerator(this, _cubesNumber, _threshold, lod, marchingCubesShader, lodsMeshFilters[lod]);
                 _lodsMeshGenerators.Add(meshGenerator);
             }
         }
-
-        public void GenerateCubes(int chunkSize, float threshold, IChunkGenerator chunkGenerator)
+        
+        private void GenerateCubes()
         {
-            Init(chunkSize, threshold, chunkGenerator);
+            var kernelIndex = cubesGeneratorShader.FindKernel("Cubes");
+            cubesGeneratorShader.GetKernelThreadGroupSizes(kernelIndex, out var x, out var y, out var z);
             
-            for (var x = 0; x < _cubesNumber; x++)
-            {
-                for (var y = 0; y < _cubesNumber; y++)
-                {
-                    for (var z = 0; z < _cubesNumber; z++)
-                    {
-                        var index = CoordsToIndex(x, y, z);
-                        var point = new Vector3(x, y, z);
-                        
-                        Cubes[index] = point;
-                        Cubes[index].w = _chunkGenerator.GetCubeValue(_transform.position + point);
-                    }
-                }
-            }
+            var groupsCount = new Vector3Int(_cubesNumber /  (int)x, _cubesNumber / (int)y, _cubesNumber / (int)z);
+            var cubesBuffer = new ComputeBuffer(Cubes.Length, sizeof(float) * 4);
             
-            UpdateMeshes();
+            cubesGeneratorShader.SetInt("cubes_number", _cubesNumber);
+            cubesGeneratorShader.SetVector("position", _transform.position);
+            cubesGeneratorShader.SetBuffer(kernelIndex, "cubes", cubesBuffer);
+            
+            cubesGeneratorShader.Dispatch(kernelIndex, groupsCount.x, groupsCount.y, groupsCount.z);
+            
+            cubesBuffer.GetData(Cubes);
+            cubesBuffer.Release();
         }
 
         private void UpdateMeshes()
