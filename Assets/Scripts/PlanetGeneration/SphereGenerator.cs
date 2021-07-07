@@ -13,7 +13,7 @@ namespace PlanetGeneration
             _sphereCenter = sphereCenter;
         }
 
-        public float GetVoxelValue(Vector3 position)
+        public float GetCubeValue(Vector3 position)
         {
             return -(Vector3.Distance(position, _sphereCenter) - _sphereRadius);
         }

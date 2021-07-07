@@ -16,7 +16,7 @@ namespace PlanetGeneration
         private Transform _transform;
         private LODGroup _lodGroup;
         
-        private Vector4[,,] _cubes;
+        public Vector4[,,] Cubes { get; private set; }
         private List<MeshGenerator> _lodsMeshGenerators;
 
         private void Init(int chunkSize, float threshold, IChunkGenerator chunkGenerator)
@@ -28,12 +28,12 @@ namespace PlanetGeneration
             _transform = transform;
             _lodGroup = GetComponent<LODGroup>();
             
-            _cubes = new Vector4[_cubesNumber, _cubesNumber, _cubesNumber];
+            Cubes = new Vector4[_cubesNumber, _cubesNumber, _cubesNumber];
             _lodsMeshGenerators = new List<MeshGenerator>();
 
             for (var lod = 0; lod < lodsMeshFilters.Count; lod++)
             {
-                var meshGenerator = new MeshGenerator(_cubesNumber, _threshold, lod, shader, lodsMeshFilters[lod]);
+                var meshGenerator = new MeshGenerator(this, _cubesNumber, _threshold, lod, shader, lodsMeshFilters[lod]);
                 _lodsMeshGenerators.Add(meshGenerator);
             }
         }
@@ -48,8 +48,8 @@ namespace PlanetGeneration
                 {
                     for (var z = 0; z < _cubesNumber; z++)
                     {
-                        _cubes[x, y, z] = new Vector3(x, y, z);
-                        _cubes[x, y, z].w = _chunkGenerator.GetVoxelValue(_transform.position + (Vector3)_cubes[x, y, z]);
+                        Cubes[x, y, z] = new Vector3(x, y, z);
+                        Cubes[x, y, z].w = _chunkGenerator.GetCubeValue(_transform.position + (Vector3)Cubes[x, y, z]);
                     }
                 }
             }
@@ -60,7 +60,7 @@ namespace PlanetGeneration
         private void UpdateMeshes()
         {
             foreach (var meshGenerator in _lodsMeshGenerators)
-                meshGenerator.UpdateMesh(_cubes);
+                meshGenerator.UpdateMesh();
 
             _lodGroup.RecalculateBounds();
         }

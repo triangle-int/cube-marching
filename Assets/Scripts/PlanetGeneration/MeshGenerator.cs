@@ -37,6 +37,7 @@ namespace PlanetGeneration
             }
         }
 
+        private readonly Chunk _chunk;
         private readonly int _cubesNumber;
         private readonly float _threshold;
         private readonly int _lod;
@@ -45,8 +46,9 @@ namespace PlanetGeneration
         private readonly ComputeShader _shader;
         private readonly MeshFilter _meshFilter;
 
-        public MeshGenerator(int cubesNumber, float threshold, int lod, ComputeShader shader, MeshFilter meshFilter)
+        public MeshGenerator(Chunk chunk, int cubesNumber, float threshold, int lod, ComputeShader shader, MeshFilter meshFilter)
         {
+            _chunk = chunk;
             _cubesNumber = cubesNumber;
             _threshold = threshold;
             _lod = lod;
@@ -56,7 +58,7 @@ namespace PlanetGeneration
             _meshFilter = meshFilter;
         }
 
-        public void UpdateMesh(Vector4[,,] cubes)
+        public void UpdateMesh()
         {
             var kernelIndex = _shader.FindKernel("March");
             _shader.GetKernelThreadGroupSizes(kernelIndex, out var x, out var y, out var z);
@@ -64,7 +66,7 @@ namespace PlanetGeneration
             var totalCount = _cubesNumber * _cubesNumber * _cubesNumber;
             var groupsCount = new Vector3Int(_cubesNumber /  (int)x, _cubesNumber / (int)y, _cubesNumber / (int)z) / _lodDownscale;
 
-            var cubesBuffer = CreateCubesBuffer(cubes);
+            var cubesBuffer = CreateCubesBuffer();
             var trianglesBuffer = new ComputeBuffer(totalCount * 5, sizeof(float) * 3 * 3, ComputeBufferType.Append);
             trianglesBuffer.SetCounterValue(0);
             
@@ -93,26 +95,26 @@ namespace PlanetGeneration
             _meshFilter.mesh = TrianglesToMesh(triangles);
         }
 
-        private ComputeBuffer CreateCubesBuffer(Vector4[,,] cubes)
+        private ComputeBuffer CreateCubesBuffer()
         {
             var totalCount = _cubesNumber * _cubesNumber * _cubesNumber;
             var data = new Vector4[totalCount];
-
+            
             for (var x = 0; x < _cubesNumber; x++)
             {
                 for (var y = 0; y < _cubesNumber; y++)
                 {
                     for (var z = 0; z < _cubesNumber; z++)
-                        data[x * _cubesNumber * _cubesNumber + y * _cubesNumber + z] = cubes[x, y, z];
+                        data[x * _cubesNumber * _cubesNumber + y * _cubesNumber + z] = _chunk.Cubes[x, y, z];
                 }
             }
-
+            
             var buffer = new ComputeBuffer(totalCount, sizeof(float) * 4);
             buffer.SetData(data);
             return buffer;
         }
 
-        public void UpdateMeshCPU(Vector4[,,] cubes)
+        public void UpdateMeshCPU()
         {
             var skip = 1 << _lod;
             var triangles = new List<Triangle>();
@@ -122,53 +124,25 @@ namespace PlanetGeneration
                 for (var y = 0; y < _cubesNumber - skip; y += skip)
                 {
                     for (var z = 0; z < _cubesNumber - skip; z += skip)
-                        triangles.AddRange(ProcessCube(cubes, x, y, z));
+                        triangles.AddRange(ProcessCube(x, y, z));
                 }
             }
             
             _meshFilter.mesh = TrianglesToMesh(triangles.ToArray());
         }
 
-        private Mesh TrianglesToMesh(Triangle[] triangles)
-        {
-            var meshVerts = new List<Vector3>();
-            var meshTris = new List<int>();
-
-            for (var triIndex = 0; triIndex < triangles.Length; triIndex++)
-            {
-                var triangle = triangles[triIndex];
-
-                for (var vertIndex = 0; vertIndex < 3; vertIndex++)
-                {
-                    meshVerts.Add(triangle[vertIndex]);
-                    meshTris.Add(triIndex * 3 + vertIndex);
-                }
-            }
-
-            var mesh = new Mesh
-            {
-                vertices = meshVerts.ToArray(),
-                triangles = meshTris.ToArray()
-            };
-            mesh.RecalculateNormals();
-            mesh.RecalculateBounds();
-            mesh.RecalculateTangents();
-
-            return mesh;
-        }
-
-        private List<Triangle> ProcessCube(Vector4[,,] cubes, int x, int y, int z)
+        private List<Triangle> ProcessCube(int x, int y, int z)
         {
             var corners = new[]
             {
-                cubes[x, y, z],
-                cubes[x + _lodDownscale, y, z],
-                cubes[x + _lodDownscale, y, z + _lodDownscale],
-                cubes[x, y, z + _lodDownscale],
-                cubes[x, y + _lodDownscale, z],
-                cubes[x + _lodDownscale, y + _lodDownscale, z],
-                cubes[x + _lodDownscale, y + _lodDownscale, z + _lodDownscale],
-                cubes[x, y + _lodDownscale, z + _lodDownscale]
+                _chunk.Cubes[x, y, z],
+                _chunk.Cubes[x + _lodDownscale, y, z],
+                _chunk.Cubes[x + _lodDownscale, y, z + _lodDownscale],
+                _chunk.Cubes[x, y, z + _lodDownscale],
+                _chunk.Cubes[x, y + _lodDownscale, z],
+                _chunk.Cubes[x + _lodDownscale, y + _lodDownscale, z],
+                _chunk.Cubes[x + _lodDownscale, y + _lodDownscale, z + _lodDownscale],
+                _chunk.Cubes[x, y + _lodDownscale, z + _lodDownscale]
             };
 
             var triangles = new List<Triangle>();
@@ -203,6 +177,34 @@ namespace PlanetGeneration
         private Vector3 GetMiddlePoint(Vector4 v1, Vector4 v2)
         {
             return Vector3.Lerp(v1, v2, (_threshold - v1.w) / (v2.w - v1.w));
+        }
+        
+        private Mesh TrianglesToMesh(Triangle[] triangles)
+        {
+            var meshVerts = new List<Vector3>();
+            var meshTris = new List<int>();
+
+            for (var triIndex = 0; triIndex < triangles.Length; triIndex++)
+            {
+                var triangle = triangles[triIndex];
+
+                for (var vertIndex = 0; vertIndex < 3; vertIndex++)
+                {
+                    meshVerts.Add(triangle[vertIndex]);
+                    meshTris.Add(triIndex * 3 + vertIndex);
+                }
+            }
+
+            var mesh = new Mesh
+            {
+                vertices = meshVerts.ToArray(),
+                triangles = meshTris.ToArray()
+            };
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+            mesh.RecalculateTangents();
+
+            return mesh;
         }
     }
 }
