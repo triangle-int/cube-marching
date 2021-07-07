@@ -66,7 +66,9 @@ namespace PlanetGeneration
             var totalCount = _cubesNumber * _cubesNumber * _cubesNumber;
             var groupsCount = new Vector3Int(_cubesNumber /  (int)x, _cubesNumber / (int)y, _cubesNumber / (int)z) / _lodDownscale;
 
-            var cubesBuffer = CreateCubesBuffer();
+            var cubesBuffer = new ComputeBuffer(totalCount, sizeof(float) * 4);
+            cubesBuffer.SetData(_chunk.Cubes);
+            
             var trianglesBuffer = new ComputeBuffer(totalCount * 5, sizeof(float) * 3 * 3, ComputeBufferType.Append);
             trianglesBuffer.SetCounterValue(0);
             
@@ -95,25 +97,6 @@ namespace PlanetGeneration
             _meshFilter.mesh = TrianglesToMesh(triangles);
         }
 
-        private ComputeBuffer CreateCubesBuffer()
-        {
-            var totalCount = _cubesNumber * _cubesNumber * _cubesNumber;
-            var data = new Vector4[totalCount];
-            
-            for (var x = 0; x < _cubesNumber; x++)
-            {
-                for (var y = 0; y < _cubesNumber; y++)
-                {
-                    for (var z = 0; z < _cubesNumber; z++)
-                        data[x * _cubesNumber * _cubesNumber + y * _cubesNumber + z] = _chunk.Cubes[x, y, z];
-                }
-            }
-            
-            var buffer = new ComputeBuffer(totalCount, sizeof(float) * 4);
-            buffer.SetData(data);
-            return buffer;
-        }
-
         public void UpdateMeshCPU()
         {
             var skip = 1 << _lod;
@@ -135,14 +118,14 @@ namespace PlanetGeneration
         {
             var corners = new[]
             {
-                _chunk.Cubes[x, y, z],
-                _chunk.Cubes[x + _lodDownscale, y, z],
-                _chunk.Cubes[x + _lodDownscale, y, z + _lodDownscale],
-                _chunk.Cubes[x, y, z + _lodDownscale],
-                _chunk.Cubes[x, y + _lodDownscale, z],
-                _chunk.Cubes[x + _lodDownscale, y + _lodDownscale, z],
-                _chunk.Cubes[x + _lodDownscale, y + _lodDownscale, z + _lodDownscale],
-                _chunk.Cubes[x, y + _lodDownscale, z + _lodDownscale]
+                _chunk.Cubes[_chunk.CoordsToIndex(x, y, z)],
+                _chunk.Cubes[_chunk.CoordsToIndex(x + _lodDownscale, y, z)],
+                _chunk.Cubes[_chunk.CoordsToIndex(x + _lodDownscale, y, z + _lodDownscale)],
+                _chunk.Cubes[_chunk.CoordsToIndex(x, y, z + _lodDownscale)],
+                _chunk.Cubes[_chunk.CoordsToIndex(x, y + _lodDownscale, z)],
+                _chunk.Cubes[_chunk.CoordsToIndex(x + _lodDownscale, y + _lodDownscale, z)],
+                _chunk.Cubes[_chunk.CoordsToIndex(x + _lodDownscale, y + _lodDownscale, z + _lodDownscale)],
+                _chunk.Cubes[_chunk.CoordsToIndex(x, y + _lodDownscale, z + _lodDownscale)]
             };
 
             var triangles = new List<Triangle>();
