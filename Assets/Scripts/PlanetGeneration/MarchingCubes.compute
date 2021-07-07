@@ -25,7 +25,7 @@ float3 get_middle_point(float4 v1, float4 v2)
     return lerp(v1.xyz, v2.xyz, (threshold - v1.w) / (v2.w - v1.w));
 }
 
-[numthreads(2,2,2)]
+[numthreads(4,4,4)]
 void March(uint3 id : SV_DispatchThreadID)
 {
     int maxIndex = cubes_number - lod_downscale;
