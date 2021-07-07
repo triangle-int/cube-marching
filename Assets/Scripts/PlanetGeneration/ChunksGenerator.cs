@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace PlanetGeneration
@@ -14,13 +15,11 @@ namespace PlanetGeneration
         private void Start()
         {
             _chunks = new Chunk[chunksNumber, chunksNumber, chunksNumber];
-            GenerateChunks();
+            StartCoroutine(GenerateChunks());
         }
 
-        private void GenerateChunks()
+        private IEnumerator GenerateChunks()
         {
-            var time = Time.realtimeSinceStartup;
-            
             for (var x = 0; x < chunksNumber; x++)
             {
                 for (var y = 0; y < chunksNumber; y++)
@@ -32,10 +31,10 @@ namespace PlanetGeneration
                         chunk.Generate(chunkSize, threshold);
                         _chunks[x, y, z] = chunk;
                     }
+
+                    yield return null;
                 }
             }
-            
-            Debug.Log(Time.realtimeSinceStartup - time);
         }
     }
 }
