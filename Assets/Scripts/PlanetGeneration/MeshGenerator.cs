@@ -41,7 +41,6 @@ namespace PlanetGeneration
         private readonly int _cubesNumber;
         private readonly float _threshold;
         private readonly int _lodDownscale;
-        
         private readonly ComputeShader _shader;
 
         public MeshGenerator(Chunk chunk, int cubesNumber, float threshold, int lod, ComputeShader shader)
@@ -50,7 +49,6 @@ namespace PlanetGeneration
             _cubesNumber = cubesNumber;
             _threshold = threshold;
             _lodDownscale = 1 << lod;
-            
             _shader = shader;
         }
 
@@ -120,72 +118,5 @@ namespace PlanetGeneration
 
             return mesh;
         }
-        
-        /*
-        public void UpdateMeshCPU()
-        {
-            var skip = 1 << _lod;
-            var triangles = new List<Triangle>();
-
-            for (var x = 0; x < _cubesNumber - skip; x += skip)
-            {
-                for (var y = 0; y < _cubesNumber - skip; y += skip)
-                {
-                    for (var z = 0; z < _cubesNumber - skip; z += skip)
-                        triangles.AddRange(ProcessCube(x, y, z));
-                }
-            }
-            
-            _meshFilter.mesh = TrianglesToMesh(triangles.ToArray());
-        }
-
-        private List<Triangle> ProcessCube(int x, int y, int z)
-        {
-            var corners = new[]
-            {
-                _chunk.Cubes[_chunk.CoordsToIndex(x, y, z)],
-                _chunk.Cubes[_chunk.CoordsToIndex(x + _lodDownscale, y, z)],
-                _chunk.Cubes[_chunk.CoordsToIndex(x + _lodDownscale, y, z + _lodDownscale)],
-                _chunk.Cubes[_chunk.CoordsToIndex(x, y, z + _lodDownscale)],
-                _chunk.Cubes[_chunk.CoordsToIndex(x, y + _lodDownscale, z)],
-                _chunk.Cubes[_chunk.CoordsToIndex(x + _lodDownscale, y + _lodDownscale, z)],
-                _chunk.Cubes[_chunk.CoordsToIndex(x + _lodDownscale, y + _lodDownscale, z + _lodDownscale)],
-                _chunk.Cubes[_chunk.CoordsToIndex(x, y + _lodDownscale, z + _lodDownscale)]
-            };
-
-            var triangles = new List<Triangle>();
-            var cubeIndex = 0;
-
-            for (var i = 0; i < corners.Length; i++)
-            {
-                if (corners[i].w >= _threshold)
-                    cubeIndex |= 1 << i;
-            }
-
-            for (var triIndex = 0; triIndex < MarchingCubesTables.TriangulationTable.GetLength(1); triIndex += 3)
-            {
-                if (MarchingCubesTables.TriangulationTable[cubeIndex, triIndex] == -1)
-                    break;
-
-                var triangle = new Triangle();
-
-                for (var vertIndex = 0; vertIndex < 3; vertIndex++)
-                {
-                    var v1 = corners[MarchingCubesTables.Corner1Index[MarchingCubesTables.TriangulationTable[cubeIndex, triIndex + vertIndex]]];
-                    var v2 = corners[MarchingCubesTables.Corner2Index[MarchingCubesTables.TriangulationTable[cubeIndex, triIndex + vertIndex]]];
-                    triangle[vertIndex] = GetMiddlePoint(v1, v2);
-                }
-
-                triangles.Add(triangle);
-            }
-
-            return triangles;
-        }
-        
-        private Vector3 GetMiddlePoint(Vector4 v1, Vector4 v2)
-        {
-            return Vector3.Lerp(v1, v2, (_threshold - v1.w) / (v2.w - v1.w));
-        }
-        */
     }
 }

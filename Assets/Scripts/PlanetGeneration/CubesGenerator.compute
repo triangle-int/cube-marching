@@ -1,7 +1,8 @@
 #pragma kernel Cubes
 
 int cubes_number;
-float3 position;
+float radius;
+float3 sphere_center, position;
 
 RWBuffer<float4> cubes;
 
@@ -13,13 +14,9 @@ int coords_to_index(int3 id)
 [numthreads(3,3,3)]
 void Cubes(uint3 id : SV_DispatchThreadID)
 {
-    // TODO : PASS THIS VALUES TO SHADER
-    float3 sphereCenter = float3(128, 128, 128);
-    float radius = 112;
-
     float4 cube;
     cube.xyz = id;
-    cube.w = -(length(cube.xyz + position - sphereCenter) - radius);
+    cube.w = -(length(cube.xyz + position - sphere_center) - radius);
     
     cubes[coords_to_index(id)] = cube;
 }

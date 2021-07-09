@@ -4,7 +4,8 @@ namespace PlanetGeneration
 {
     public class CubesGenerator : MonoBehaviour
     {
-        // TODO : PUT HERE GENERATION SETTINGS
+        [SerializeField] private float radius;
+        [SerializeField] private Vector3 sphereCenter;
         [SerializeField] private ComputeShader shader;
 
         public Vector4[] GenerateCubes(int cubesNumber, Vector3 position)
@@ -17,6 +18,8 @@ namespace PlanetGeneration
             var cubesBuffer = new ComputeBuffer(cubes.Length, sizeof(float) * 4);
             
             shader.SetInt("cubes_number", cubesNumber);
+            shader.SetFloat("radius", radius);
+            shader.SetVector("sphere_center", sphereCenter);
             shader.SetVector("position", position);
             shader.SetBuffer(kernelIndex, "cubes", cubesBuffer);
             

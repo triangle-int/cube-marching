@@ -66,10 +66,5 @@ namespace PlanetGeneration
 
             _lodGroup.RecalculateBounds();
         }
-
-        public int CoordsToIndex(int x, int y, int z)
-        {
-            return x * _cubesNumber * _cubesNumber + y * _cubesNumber + z;
-        }
     }
 }
