@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -60,7 +61,7 @@ namespace PlanetGeneration
                 var mesh = _lodsMeshGenerators[lod].GenerateMesh();
                 lodsMeshFilters[lod].mesh = mesh;
 
-                if (lod == 0)
+                if (lod == 0 && mesh.triangles.Length > 0)
                     _meshCollider.sharedMesh = mesh;
             }
 
