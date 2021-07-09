@@ -26,7 +26,7 @@ float3 get_middle_point(float4 v1, float4 v2)
 }
 
 [numthreads(4,4,4)]
-void March(uint3 id : SV_DispatchThreadID)
+void March(int3 id : SV_DispatchThreadID)
 {
     int maxIndex = cubes_number - lod_downscale;
     
@@ -46,10 +46,10 @@ void March(uint3 id : SV_DispatchThreadID)
     
     int cubeIndex = 0;
 
-    for (int i = 0; i < 8; i++)
+    for (int cube = 0; cube < 8; cube++)
     {
-        if (corners[i].w >= threshold)
-            cubeIndex |= 1 << i;
+        if (corners[cube].w >= threshold)
+            cubeIndex |= 1 << cube;
     }
 
     for (int i = 0; i < 16; i += 3)
