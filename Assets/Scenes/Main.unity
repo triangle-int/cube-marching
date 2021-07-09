@@ -896,7 +896,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e0dcf1f9ff44a0aa11338904fadc205, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 120
+  radius: 96
   sphereCenter: {x: 128, y: 128, z: 128}
   shader: {fileID: 7200000, guid: 265020792f2b1344b9d1d605f1b4e855, type: 3}
 --- !u!1001 &2006263463
@@ -1751,7 +1751,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 2.2608695, y: 1}
+    m_SensorSize: {x: 2.2868068, y: 1}
     Iso: 200
     ShutterSpeed: 0.005
     Aperture: 16
