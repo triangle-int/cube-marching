@@ -897,6 +897,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   radius: 96
+  noiseScale: 5
+  noiseAmplitude: 0.2
   sphereCenter: {x: 128, y: 128, z: 128}
   shader: {fileID: 7200000, guid: 265020792f2b1344b9d1d605f1b4e855, type: 3}
 --- !u!1001 &2006263463

@@ -5,6 +5,8 @@ namespace PlanetGeneration
     public class CubesGenerator : MonoBehaviour
     {
         [SerializeField] private float radius;
+        [SerializeField] private float noiseScale;
+        [SerializeField] private float noiseAmplitude;
         [SerializeField] private Vector3 sphereCenter;
         [SerializeField] private ComputeShader shader;
 
@@ -19,6 +21,8 @@ namespace PlanetGeneration
             
             shader.SetInt("cubes_number", cubesNumber);
             shader.SetFloat("radius", radius);
+            shader.SetFloat("noise_scale", noiseScale);
+            shader.SetFloat("noise_amplitude", noiseAmplitude);
             shader.SetVector("sphere_center", sphereCenter);
             shader.SetVector("position", position);
             shader.SetBuffer(kernelIndex, "cubes", cubesBuffer);
