@@ -8,7 +8,6 @@ namespace PlanetGeneration
     public class Chunk : MonoBehaviour
     {
         [SerializeField] private List<MeshFilter> lodsMeshFilters;
-        [SerializeField] private ComputeShader shader;
 
         private int _cubesNumber;
         private float _threshold;
@@ -43,7 +42,7 @@ namespace PlanetGeneration
 
             for (var lod = 0; lod < lodsMeshFilters.Count; lod++)
             {
-                var meshGenerator = new MeshGenerator(this, _cubesNumber, _threshold, lod, shader);
+                var meshGenerator = new MeshGenerator(this, _cubesNumber, _threshold, lod);
                 _lodsMeshGenerators.Add(meshGenerator);
             }
         }

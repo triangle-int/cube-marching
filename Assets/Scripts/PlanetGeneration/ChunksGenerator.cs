@@ -33,9 +33,8 @@ namespace PlanetGeneration
                         var chunk = Instantiate(chunkPrefab, position, Quaternion.identity).GetComponent<Chunk>();
                         chunk.Generate(chunkSize, threshold, _generator);
                         _chunks[x, y, z] = chunk;
+                        yield return null;
                     }
-
-                    yield return null;
                 }
             }
         }

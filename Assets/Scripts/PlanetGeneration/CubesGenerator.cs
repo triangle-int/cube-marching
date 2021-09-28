@@ -5,33 +5,27 @@ namespace PlanetGeneration
     public class CubesGenerator : MonoBehaviour
     {
         [SerializeField] private float radius;
-        [SerializeField] private float noiseScale;
-        [SerializeField] private float noiseAmplitude;
         [SerializeField] private Vector3 sphereCenter;
-        [SerializeField] private ComputeShader shader;
 
         public Vector4[] GenerateCubes(int cubesNumber, Vector3 position)
         {
-            var kernelIndex = shader.FindKernel("Cubes");
-            shader.GetKernelThreadGroupSizes(kernelIndex, out var x, out var y, out var z);
+            var result = new Vector4[cubesNumber * cubesNumber * cubesNumber];
 
-            var cubes = new Vector4[cubesNumber * cubesNumber * cubesNumber];
-            var groupsCount = new Vector3Int(cubesNumber /  (int)x, cubesNumber / (int)y, cubesNumber / (int)z);
-            var cubesBuffer = new ComputeBuffer(cubes.Length, sizeof(float) * 4);
-            
-            shader.SetInt("cubes_number", cubesNumber);
-            shader.SetFloat("radius", radius);
-            shader.SetFloat("noise_scale", noiseScale);
-            shader.SetFloat("noise_amplitude", noiseAmplitude);
-            shader.SetVector("sphere_center", sphereCenter);
-            shader.SetVector("position", position);
-            shader.SetBuffer(kernelIndex, "cubes", cubesBuffer);
-            
-            shader.Dispatch(kernelIndex, groupsCount.x, groupsCount.y, groupsCount.z);
-            
-            cubesBuffer.GetData(cubes);
-            cubesBuffer.Release();
-            return cubes;
+            for (var x = 0; x < cubesNumber; x++)
+            {
+                for (var y = 0; y < cubesNumber; y++)
+                {
+                    for (var z = 0; z < cubesNumber; z++)
+                    {
+                        var index = x * cubesNumber * cubesNumber + y * cubesNumber + z;
+                        result[index] = new Vector3(x, y, z);
+                        var globalPos = position + (Vector3)result[index] - sphereCenter;
+                        result[index].w = -(globalPos.magnitude - radius) / radius;
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

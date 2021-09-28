@@ -205,7 +205,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4249518498469874, guid: e816ed95b763b34459ce693faf289f78, type: 3}
       propertyPath: m_RootOrder
-      value: 17
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 4249518498469874, guid: e816ed95b763b34459ce693faf289f78, type: 3}
       propertyPath: m_LocalPosition.x
@@ -262,7 +262,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4249518498469874, guid: e816ed95b763b34459ce693faf289f78, type: 3}
       propertyPath: m_RootOrder
-      value: 16
+      value: 17
       objectReference: {fileID: 0}
     - target: {fileID: 4249518498469874, guid: e816ed95b763b34459ce693faf289f78, type: 3}
       propertyPath: m_LocalPosition.x
@@ -541,7 +541,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 14
+  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 47.51, y: 124.591, z: 0.292}
 --- !u!1 &1464599786
 GameObject:
@@ -709,7 +709,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chunksNumber: 8
-  chunkSize: 32
+  chunkSize: 8
   threshold: 0
   chunkPrefab: {fileID: 637527716325678138, guid: 4904f238c53dc3542ba10fb1642517fb, type: 3}
 --- !u!114 &1959791738
@@ -724,10 +724,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e0dcf1f9ff44a0aa11338904fadc205, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 96
+  radius: 32
   noiseScale: 5
   noiseAmplitude: 0.2
-  sphereCenter: {x: 128, y: 128, z: 128}
+  sphereCenter: {x: 32, y: 32, z: 32}
   shader: {fileID: 7200000, guid: 265020792f2b1344b9d1d605f1b4e855, type: 3}
 --- !u!1001 &2006263463
 PrefabInstance:
@@ -1480,7 +1480,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.7063922, y: 1}
+    m_SensorSize: {x: 1.9230769, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
