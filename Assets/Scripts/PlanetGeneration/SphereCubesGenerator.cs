@@ -2,7 +2,7 @@
 
 namespace PlanetGeneration
 {
-    public class SphereGenerator : MonoBehaviour, ICubesGenerator
+    public class SphereCubesGenerator : MonoBehaviour, ICubesGenerator
     {
         [SerializeField] private float radius;
         [SerializeField] private Vector3 sphereCenter;

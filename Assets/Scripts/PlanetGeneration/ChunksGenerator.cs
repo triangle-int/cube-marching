@@ -11,12 +11,12 @@ namespace PlanetGeneration
         [SerializeField] private float threshold;
         [SerializeField] private GameObject chunkPrefab;
 
-        private SphereGenerator _generator;
+        private ICubesGenerator _cubesGenerator;
         private Chunk[,,] _chunks;
 
         private void Start()
         {
-            _generator = GetComponent<SphereGenerator>();
+            _cubesGenerator = GetComponent<ICubesGenerator>();
             _chunks = new Chunk[chunksNumber, chunksNumber, chunksNumber];
             StartCoroutine(GenerateChunks());
         }
@@ -31,7 +31,7 @@ namespace PlanetGeneration
                     {
                         var position = new Vector3(x, y, z) * chunkSize;
                         var chunk = Instantiate(chunkPrefab, position, Quaternion.identity).GetComponent<Chunk>();
-                        chunk.Generate(chunkSize, threshold, _generator);
+                        chunk.Generate(chunkSize, threshold, _cubesGenerator);
                         _chunks[x, y, z] = chunk;
                         yield return null;
                     }
