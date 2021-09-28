@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 0ffaa0b7117ba8c47a9d05ae701d4b4d, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.00035982503, g: 0.00038051812, b: 0.00061759306, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -460,7 +460,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1328828888}
   - component: {fileID: 1328828887}
-  - component: {fileID: 1328828886}
   m_Layer: 0
   m_Name: Additional Light
   m_TagString: Untagged
@@ -468,18 +467,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1328828886
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1328828885}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a68c43fe1f2a47cfa234b5eeaa98012, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!108 &1328828887
 Light:
   m_ObjectHideFlags: 0
@@ -1071,7 +1058,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.972549, g: 0.95686275, b: 0.92941177, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1233,9 +1220,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1966960547981332195, guid: 81cbf812d6aab0b49bd123f9cfad3ae3, type: 3}
       propertyPath: m_Intensity
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1966960547981332193, guid: 81cbf812d6aab0b49bd123f9cfad3ae3, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 81cbf812d6aab0b49bd123f9cfad3ae3, type: 3}
 --- !u!114 &2425462731530117901
 MonoBehaviour:
@@ -1492,7 +1480,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.9164733, y: 1}
+    m_SensorSize: {x: 1.7063922, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
