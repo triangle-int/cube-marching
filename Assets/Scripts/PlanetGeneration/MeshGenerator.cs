@@ -1,42 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace PlanetGeneration
 {
     public class MeshGenerator
     {
-        private struct Triangle
-        {
-            private Vector3 _v1;
-            private Vector3 _v2;
-            private Vector3 _v3;
-
-            public Vector3 this[int i]
-            {
-                get
-                {
-                    switch (i)
-                    {
-                        case 0: return _v1;
-                        case 1: return _v2;
-                        case 2: return _v3;
-                        default: throw new IndexOutOfRangeException();
-                    }
-                }
-                set
-                {
-                    switch (i)
-                    {
-                        case 0: _v1 = value; break;
-                        case 1: _v2 = value; break;
-                        case 2: _v3 = value; break;
-                        default: throw new IndexOutOfRangeException();
-                    }
-                }
-            }
-        }
-
         private readonly Chunk _chunk;
         private readonly int _cubesNumber;
         private readonly float _threshold;
@@ -48,11 +16,6 @@ namespace PlanetGeneration
             _cubesNumber = cubesNumber;
             _threshold = threshold;
             _lodDownscale = 1 << lod;
-        }
-
-        private int CoordsToIndex(int x, int y, int z)
-        {
-            return x * _cubesNumber * _cubesNumber + y * _cubesNumber + z;
         }
 
         private Vector3 GetMiddlePoint(Vector4 v1, Vector4 v2)
@@ -71,41 +34,41 @@ namespace PlanetGeneration
                     for (var z = 0; z < _cubesNumber - _lodDownscale; z += _lodDownscale)
                     {
                         var corners = new [] {
-                            _chunk.Cubes[CoordsToIndex(x, y, z)],
-                            _chunk.Cubes[CoordsToIndex(x + _lodDownscale, y, z)],
-                            _chunk.Cubes[CoordsToIndex(x + _lodDownscale, y, z + _lodDownscale)],
-                            _chunk.Cubes[CoordsToIndex(x, y, z + _lodDownscale)],
-                            _chunk.Cubes[CoordsToIndex(x, y + _lodDownscale, z)],
-                            _chunk.Cubes[CoordsToIndex(x + _lodDownscale, y + _lodDownscale, z)],
-                            _chunk.Cubes[CoordsToIndex(x + _lodDownscale, y + _lodDownscale, z + _lodDownscale)],
-                            _chunk.Cubes[CoordsToIndex(x, y + _lodDownscale, z + _lodDownscale)]
+                            _chunk.Cubes[x, y, z],
+                            _chunk.Cubes[x + _lodDownscale, y, z],
+                            _chunk.Cubes[x + _lodDownscale, y, z + _lodDownscale],
+                            _chunk.Cubes[x, y, z + _lodDownscale],
+                            _chunk.Cubes[x, y + _lodDownscale, z],
+                            _chunk.Cubes[x + _lodDownscale, y + _lodDownscale, z],
+                            _chunk.Cubes[x + _lodDownscale, y + _lodDownscale, z + _lodDownscale],
+                            _chunk.Cubes[x, y + _lodDownscale, z + _lodDownscale]
                         };
-                        var index = 0;
+                        var cubeIndex = 0;
 
-                        for (var cube = 0; cube < 8; cube++)
+                        for (var cornerIndex = 0; cornerIndex < 8; cornerIndex++)
                         {
-                            if (corners[cube].w >= _threshold)
-                                index |= 1 << cube;
+                            if (corners[cornerIndex].w >= _threshold)
+                                cubeIndex |= 1 << cornerIndex;
                         }
 
-                        for (var tri = 0; tri < 16; tri += 3)
+                        for (var triIndex = 0; triIndex < 16; triIndex += 3)
                         {
-                            if (MarchingCubesTables.TriangulationTable[index, tri] == -1)
+                            if (MarchingCubesTables.TriangulationTable[cubeIndex, triIndex] == -1)
                                 break;
 
                             var triangle = new Triangle();
 
-                            for (var vert = 0; vert < 3; vert++)
+                            for (var vertIndex = 0; vertIndex < 3; vertIndex++)
                             {
                                 var vert1 = corners[
                                     MarchingCubesTables.Corner1Index[
-                                        MarchingCubesTables.TriangulationTable[index, tri + vert]]];
+                                        MarchingCubesTables.TriangulationTable[cubeIndex, triIndex + vertIndex]]];
                                 var vert2 = corners[
                                     MarchingCubesTables.Corner2Index[
-                                        MarchingCubesTables.TriangulationTable[index, tri + vert]]];
-                                triangle[vert] = GetMiddlePoint(vert1, vert2);
+                                        MarchingCubesTables.TriangulationTable[cubeIndex, triIndex + vertIndex]]];
+                                triangle[vertIndex] = GetMiddlePoint(vert1, vert2);
                             }
-                            
+
                             triangles.Add(triangle);
                         }
                     }
@@ -117,17 +80,21 @@ namespace PlanetGeneration
         
         private Mesh TrianglesToMesh(List<Triangle> triangles)
         {
+            var vertsDict = new Dictionary<Vector3, int>();
             var meshVerts = new List<Vector3>();
             var meshTris = new List<int>();
 
-            for (var triIndex = 0; triIndex < triangles.Count; triIndex++)
+            foreach (var triangle in triangles)
             {
-                var triangle = triangles[triIndex];
-
                 for (var vertIndex = 0; vertIndex < 3; vertIndex++)
                 {
-                    meshVerts.Add(triangle[vertIndex]);
-                    meshTris.Add(triIndex * 3 + vertIndex);
+                    if (!vertsDict.ContainsKey(triangle[vertIndex]))
+                    {
+                        vertsDict[triangle[vertIndex]] = meshVerts.Count;
+                        meshVerts.Add(triangle[vertIndex]);
+                    }
+                    
+                    meshTris.Add(vertsDict[triangle[vertIndex]]);
                 }
             }
 

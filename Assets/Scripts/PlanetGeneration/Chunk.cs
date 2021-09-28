@@ -11,23 +11,23 @@ namespace PlanetGeneration
 
         private int _cubesNumber;
         private float _threshold;
-        private CubesGenerator _generator;
+        private ICubesGenerator _generator;
 
         private Transform _transform;
         private LODGroup _lodGroup;
         private MeshCollider _meshCollider;
 
-        public Vector4[] Cubes { get; private set; }
+        public Vector4[,,] Cubes { get; private set; }
         private List<MeshGenerator> _lodsMeshGenerators;
         
-        public void Generate(int chunkSize, float threshold, CubesGenerator generator)
+        public void Generate(int chunkSize, float threshold, ICubesGenerator generator)
         {
             Init(chunkSize, threshold, generator);
             GenerateCubes();
             UpdateMeshes();
         }
 
-        private void Init(int chunkSize, float threshold, CubesGenerator generator)
+        private void Init(int chunkSize, float threshold, ICubesGenerator generator)
         {
             _cubesNumber = chunkSize + 1;
             _threshold = threshold;
@@ -37,7 +37,7 @@ namespace PlanetGeneration
             _lodGroup = GetComponent<LODGroup>();
             _meshCollider = GetComponent<MeshCollider>();
             
-            Cubes = new Vector4[_cubesNumber * _cubesNumber * _cubesNumber];
+            Cubes = new Vector4[_cubesNumber, _cubesNumber, _cubesNumber];
             _lodsMeshGenerators = new List<MeshGenerator>();
 
             for (var lod = 0; lod < lodsMeshFilters.Count; lod++)

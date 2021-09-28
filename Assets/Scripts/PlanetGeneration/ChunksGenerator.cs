@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PlanetGeneration
 {
-    [RequireComponent(typeof(CubesGenerator))]
+    [RequireComponent(typeof(ICubesGenerator))]
     public class ChunksGenerator : MonoBehaviour
     {
         [SerializeField] private int chunksNumber;
@@ -11,12 +11,12 @@ namespace PlanetGeneration
         [SerializeField] private float threshold;
         [SerializeField] private GameObject chunkPrefab;
 
-        private CubesGenerator _generator;
+        private SphereGenerator _generator;
         private Chunk[,,] _chunks;
 
         private void Start()
         {
-            _generator = GetComponent<CubesGenerator>();
+            _generator = GetComponent<SphereGenerator>();
             _chunks = new Chunk[chunksNumber, chunksNumber, chunksNumber];
             StartCoroutine(GenerateChunks());
         }
